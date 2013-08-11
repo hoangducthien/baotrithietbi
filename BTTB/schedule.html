@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Ke hoach san xuat/bao tri</title>
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+<link rel="stylesheet" href="jquery.mobile-1.3.2.css" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.10.1.js"></script>
+<script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+<script type="text/javascript" src="js/jquery.mobile.simpledialog2.min.js"></script>
+<script type="text/javascript">	
+	$(function(){
+		var x = $(window).width(); 
+		var y = $(window).height(); 
+		x -= 20;
+		y -= 10;
+		$("#container").css("width",x); 
+		$("#container").css("height",y);		
+		x -= 5;
+		y -= 47;
+		var left = x/4;
+		var right = x - left + 2.5;
+		var bottom = y - $("#sch_left_top").height();			
+		$("#left").css("width",left); 
+		$("#left").css("height",y); 
+		$("#sch_left_bottom").css("height",bottom); 
+		$("#right").css("width",right); 
+		$("#right").css("height",y); 
+		$("#sch_list_1").css("height",bottom - $("#left_head").height() - $("#left_bot").height()); 	
+		$("#sch_right_top").css("height",y-60);
+		$(document).on("click", ".removeMore", function(){
+			$.remove($(this).parent().attr('id'));
+			$(this).parent().removeAttr('id');
+			$(this).parent().removeClass('addMore');
+			$(this).parent().hide();
+			
+		}); 
+		var ar = new Array();		
+		$.check = function(item){
+			for (var i=0;i<ar.length;i++){
+				if (item == ar[i]) return true;				
+			}
+			return false;
+		}
+		$.remove = function(item){
+			for (var i=0;i<ar.length;i++){
+				if (item == ar[i]) { ar[i]="";}
+			}
+		}
+		
+		$.addMore = function(num){
+			var selector = '#sch_op_'+num;
+			var id = $(selector).val();
+			var text = $(selector + ' :selected').text();
+			var s = '<span class="addMore" id="'+ id +'"><div class="removeMore"></div>'+text+'</span>';	
+			if (num == 5){								
+				if(!$.check(id)){
+					ar[ar.length] = id;
+					$('#dsbt_npt').append(s);
+				}
+			}
+			if ((num == 6)&&(id!='auto')){	
+				if(!$.check(id)){
+					ar[ar.length] = id;
+					$('#dsbt_dstb').append(s);
+				}
+			}
+			if (id=='auto'){
+				
+			}
+		}
+		$('#sch_op_4').change(function(){
+			if ($('#sch_op_4 :selected').val() == 'baotri'){
+				$('#sch_actionwork').show();
+			}else{
+				$('#sch_actionwork').hide();
+			}
+		});
+		$('#sch_list_1').on("taphold", "li", function(e) {
+			e.stopPropagation();
+			$(this).simpledialog2({
+				mode:"blank",
+				headerText:"Actions",
+				showModal:false,
+				forceInput:true,
+				headerClose:true,
+				blankContent:'<input type="button" value="Xóa" onclick="" style="width:70%"/>'
+        	});
+    	});
+		$.showinfo = function(id){
+			$('#sch_info').show();			
+			$('#sch_add').hide();
+		}
+		$('#sch_list_1').on("click", "li", function(e) {
+			var id = $(this).attr('id');		
+			$.showinfo(id);
+    	});
+		$('#sch_addmore').click(function(){
+			$('#sch_info').hide();			
+			$('#sch_add').show();
+		});
+	});
+</script>
+</head>
+<body>
+  <div id="container">  
+  	<div data-role="header">
+    	<a href="menu.html" data-ajax="false" data-icon="arrow-l" style="width:15%;">Quay lại</a>
+    	<h1>Kế hoạch sản xuất/bảo trì</h1>
+		<a href="index.html" data-role="none" data-ajax="false"><img src="img/logout-icon.png" class="logout" width="30" height="30" /></a>
+	</div>	
+	<div id="left">
+		<div id="sch_left_top" class="Filter">
+			<div data-role="header">
+				<h1>Tùy Chọn</h1>
+			</div><!-- /header -->
+			<div class="ui-grid-a">	
+				<div class="ui-block-a" style="width:30%; padding-top:10px; padding-left:5px">
+					<label for="sch_op_1">
+							Thời gian:
+					</label>
+				</div>
+				<div class="ui-block-b" style="width:68%">
+					<select data-native-menu="false" name="" id='sch_op_1'>
+						<option>Tất cả</option>
+						<option>Ngày</option>
+						<option>Tháng</option>
+						<option>Năm</option>
+					</select>
+				</div>
+			</div>		
+			<div class="ui-grid-a">	
+				<div class="ui-block-a" style="width:30%; padding-top:10px; padding-left:5px">
+					<label for="sch_op_2">
+							Loại:
+					</label>
+				</div>
+				<div class="ui-block-b" style="width:68%">
+					<select data-native-menu="false" name="" id='sch_op_2'>
+						<option>Tất cả</option>
+						<option>Bảo Trì</option>
+						<option>Sản Xuất</option>				
+					</select>
+				</div>
+			</div>							
+		</div>
+		<div id="sch_left_bottom" align="center">
+			<div id="left_head">
+				<div data-role="header">
+					<h1>Danh Sách Công Việc</h1>
+				</div><!-- /header -->		
+				<div class="ui-grid-a">	
+						 <div class="ui-block-a" style="width:40%">
+							<select data-native-menu="false" id="sch_op_3" name="">
+								<option>Tên</option>
+								<option>Mã Số</option>
+								<option>Thiết bị</option>
+							</select>					
+						</div>
+						<div class="ui-block-b" style="width:58%">
+							<input name="" id="sch_se_1" placeholder="" value="" type="search">
+						</div>
+				</div>			
+			</div>		
+			<ul id="sch_list_1" data-role="listview" data-divider-theme="b" data-inset="true" style="overflow:auto">
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+				<li>Sua abc thiet bi xyz</li>
+				<li>San xuat mnk</li>
+				<li>Bao tri dinh ky</li>
+				<li>San xuat theo ke hoach</li>
+			</ul>
+			<div id="left_bot" align="center" style="height:60px; width:150px">						
+				<input type="button" value="Thêm" id="sch_addmore"/>	
+			</div>
+		</div>
+	</div>
+	<div id="right">
+		<div id="sch_right_top" style="overflow:auto">
+			<div data-role="header">
+				<h1>Chi Tiết Công Việc</h1>
+			</div><!-- /header -->	
+			<div data-role="content" id='sch_add' style="display:none">		
+				<p>Ma so</p>
+				<p>Ten cong viec</p>	
+				<p>Thoi gian</p>
+				<div class="ui-grid-a" style="width:50%">	
+					<div class="ui-block-a" style="width:35%; padding-top:10px; padding-left:5px">				
+						<label for="dsbt_op_5">
+							Loại công việc:
+						</label>
+					</div>
+					<div class="ui-block-b" style="width:65%">
+						<select data-native-menu="false" id="sch_op_4" name="">							
+							<option value="baotri">
+								Bảo Trì
+							</option>
+							<option value="sanxuat">
+								Sản xuất
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="ui-grid-a" style="width:50%" id="sch_actionwork">	
+					<div class="ui-block-a" style="width:35%; padding-top:10px; padding-left:5px">				
+						<label for="dsbt_op_5">
+							Thao tác bảo trì:
+						</label>
+					</div>
+					<div class="ui-block-b" style="width:65%">
+						<select data-native-menu="false" id="sch_op_7" name="">							
+							<option value="option1">
+								Thêm nhớt
+							</option>
+							<option value="option1">
+								Lau chùi
+							</option>
+							<option value="option1">
+								Đánh bóng
+							</option>
+							<option value="option1">
+								Thay mới
+							</option>
+						</select>
+					</div>
+				</div>
+				<div id="dsbt_npt">		
+					<div class="ui-grid-a" style="width:50%">	
+						<div class="ui-block-a" style="width:35%; padding-top:10px; padding-left:5px">				
+							<label for="dsbt_op_5">
+								Người phụ trách:
+							</label>
+						</div>
+						<div class="ui-block-b" style="width:55%">
+							<select data-native-menu="false" id="sch_op_5" name="">
+								<option value="option1">
+									Nguyen Van A
+								</option>
+								<option value="option2">
+									Nguyen Van B
+								</option>
+							</select>
+						</div>
+						<div class="ui-block-c" style="width:10%; margin-top:15px; cursor:pointer">
+							<img src="img/add.gif" onclick="$.addMore(5)"/>
+						</div>
+					</div>						
+				</div>
+				<div id="dsbt_dstb">
+					<div class="ui-grid-a" style="width:50%">	
+						<div class="ui-block-a" style="width:35%; padding-top:10px; padding-left:5px">				
+							<label for="dsbt_op_5">
+								Danh sách thiết bị:
+							</label>
+						</div>
+						<div class="ui-block-b" style="width:55%">
+							<select data-native-menu="false" id="sch_op_6" name="">
+								<option value="auto">
+									Tự động thêm
+								</option>
+								<option value="option1">
+									Thiet bi A
+								</option>
+								<option value="option2">
+									Thiet bi B
+								</option>
+							</select>
+						</div>
+						<div class="ui-block-c" style="width:10%; margin-top:15px; cursor:pointer">
+							<img src="img/add.gif" onclick="$.addMore(6)"/>
+						</div>
+					</div>	
+				</div>		
+				<p>Mô tả</p>
+				<textarea class="describe" name="MoTa"></textarea>				
+			</div>
+			<div data-role="content" id='sch_info'>		
+				<p>Ma so</p>
+				<p>Ten cong viec</p>	
+				<p>Thoi gian</p>
+				<p>Loại công việc:</p>
+				<p>Thao tác bảo trì:</p>
+				<p>Người phụ trách:</p>
+				<p>Danh sách thiết bị:</p>
+				<p>Mô tả</p>
+				<textarea class="describe" name="MoTa"></textarea>				
+			</div>
+		</div>
+		<div id="sch_right_action" style="height:60px;">				
+				<div style="width:15%; float:right;"><input type="button" value="Hoàn thành" /></div>
+		</div>	
+	</div>
+  </div>
+  
+</body>
+</html>

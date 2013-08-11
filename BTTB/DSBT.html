@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Danh Sach Thiết Bị</title>
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+<link rel="stylesheet" href="jquery.mobile-1.3.2.css" type="text/css" />
+<script type="text/javascript" src="js/jquery-1.10.1.js"></script>
+<script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+<script type="text/javascript" src="js/jquery.mobile.simpledialog2.min.js"></script>
+<script type="text/javascript">	
+	
+	function filter(selector, query, s) {  
+  		query = $.trim(query);
+  		query = query.replace(/ /gi, '|');  
+  		$(selector).each(function() {  
+			if (s != '')
+    		var str = $(this).attr(s); 
+			else var str = $(this).text();
+			(str.search(new RegExp(query, "i")) < 0) ? $(this).hide(): $(this).show();  
+  		});  
+	}
+	function search_list(s1,s2,s3) {
+		$(s1+' li').addClass('visible');
+		$(s2).keyup(function(event) {  
+   			 if (event.keyCode == 27 || $(this).val() == '') {  
+      				$(this).val('');  
+              		$(s1+' li').show();  
+   			 }  
+    		else {  
+				if ($(s3).val() == 'ten')
+      				filter(s1+' li', $(this).val(),'');
+				else filter(s1+' li', $(this).val(),'data-'+$(s3).val());  
+    		}
+    	});  	
+	}
+	function ajax_thanhphan(matb) {
+		var link = localStorage.getItem('link_server')+"show_tp.php";
+		dataString = 'matb='+matb;
+		$.ajax({
+			type: "POST",
+			url: link,
+			data: dataString,
+			success: function(data){
+				$('#dstb_list_2').html(data);
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error: " + xhr.status + "\n" +
+                               "Message: " + xhr.statusText + "\n" +
+                               "Response: " + xhr.responseText + "\n" + thrownError);
+			} 
+		});
+	}
+	function ajax_chitiettb(masotb) {
+		var link = localStorage.getItem('link_server')+"show_cttb.php";
+		dataString = 'masotb='+masotb;
+		$.ajax({
+			type: "POST",
+			url: link,
+			data: dataString,
+			success: function(data){
+				data = JSON.parse(data);
+				$('#show_maso').html(masotb);
+				$('#show_ten').html(data['ten']);
+				$('#show_vitri').html(data['vitri']);
+				$('#show_time').html(data['ngaybaotri']);
+				$('#show_nguoibt').html(data['nguoibaotri']);
+				$('#show_loaibt').html(data['loaibt']);
+				if (data['tinhtrang'] == '1') {
+					$('#dsbt_op_5').val('binhthuong');
+				} else {
+					$('#dsbt_op_5').val('ngunghoatdong');
+				}
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error: " + xhr.status + "\n" +
+                               "Message: " + xhr.statusText + "\n" +
+                               "Response: " + xhr.responseText + "\n" + thrownError);
+			} 
+		});
+	}
+	$(function(){
+		var x = window.innerWidth; 
+		var y = window.innerHeight; 
+		x -= 20;
+		y -= 10;
+		$("#container").css("width",x); 
+		$("#container").css("height",y);		
+		x -= 5;
+		y -= 47;
+		var left = x/4;
+		var right = x - left + 2.5;
+		var bottom = y - $("#dsbt_left_top").height();					
+		$("#dsbt_left_bottom").css("height",bottom); 
+		$("#left").css("width",left); 
+		$("#right").css("width",right); 
+		$("#right").css("height",y); 
+		$("#right_top").css("height",y-60); 		
+		$("#dstb_list_1").css("height",bottom - $("#left_head").height()); 		
+		$("#dstb_list_2").css("height",y - $("#right_head").height()); 		
+		$('#dsbt_list_tb li').click(function(){
+			var li = $(this);
+			$('#dsbt_list_tb li').each(function(){	
+				$(this).css('margin-left','0');
+			});
+			li.css('margin-left','10px');
+			
+		});		
+		$("#dsbt_change_img").parent().css("display","none");
+		$('.parent').click(function(){			
+			var ul = $(this).parent().children().eq(1);
+			var b = ul.is(':visible')
+			ul.toggle('slow');
+			
+			if (b){
+				$(this).removeClass('list_minus').addClass('list_plus');
+			}else{
+				$(this).removeClass('list_plus').addClass('list_minus');
+			}
+			
+		});
+		$('#dsbt_op_1').on('change',function(){
+				$('#dstb_list_1 li').each(function(){
+					if ($('#dsbt_op_1').val() == '0') {
+						$(this).show();
+					} else {
+						if ($(this).attr('data-matb') != $('#dsbt_op_1').val()) 
+						 $(this).hide(); else $(this).show();
+					} 
+				});
+		});
+		$('#dsbt_op_2').on('change',function(){
+				$('#dstb_list_1 li').each(function(){
+					if ($('#dsbt_op_2').val() == '0') {
+						$(this).show();
+					} else {
+						if ($(this).attr('data-vitri') != $('#dsbt_op_2').val()) 
+						 $(this).hide(); else $(this).show();
+					}
+				});
+		});
+		search_list("#dstb_list_1","#dsbt_se_1",'#dsbt_op_3');
+		search_list("#dstb_list_2","#dsbt_se_2",'#dsbt_op_4');
+		$(document).on('click','#dstb_list_1 li',function(){
+				var masotb = $(this).attr('data-masotb');
+				var matb = $(this).attr('data-matb');
+				ajax_chitiettb(masotb);
+				ajax_thanhphan(matb);
+		});
+		var link = localStorage.getItem('link_server')+"dsbt.php";
+		$.ajax({
+			type: "POST",
+			url: link,
+			success: function(data){
+				data = JSON.parse(data);
+				$('#dstb_list_1').html(data['dstb']);
+				$('#dsbt_op_1').html(data['dstb_op1']);
+				$('#dsbt_op_1').selectmenu('refresh', true);
+				$('#dsbt_op_2').html(data['dstb_op2']);
+				$('#dsbt_op_2').selectmenu('refresh', true);
+				ajax_thanhphan(data['first_matb']);
+				ajax_chitiettb(data['first_masotb']);
+			},
+			error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error: " + xhr.status + "\n" +
+                               "Message: " + xhr.statusText + "\n" +
+                               "Response: " + xhr.responseText + "\n" + thrownError);
+			} 
+		});		
+		$('ul').on("taphold", "li", function(e) {
+			e.stopPropagation();
+			$(this).simpledialog2({
+				mode:"blank",
+				headerText:"Actions",
+				showModal:false,
+				forceInput:true,
+				headerClose:true,
+				blankContent:'<input type="button" value="Xóa" onclick="" style="width:70%"/>'
+        	});
+    	});		
+	});
+</script>
+</head>
+<body>
+  <div id="container">    	
+  	<div data-role="header">
+    <a href="menu.html" data-ajax="false" data-icon="arrow-l" style="width:15%;">Quay lại</a>
+    <h1>Danh sách bảo trì</h1>
+	<a href="index.html" data-role="none" data-ajax="false"><img src="img/logout-icon.png" class="logout" width="30" height="30" /></a>
+	</div>	
+
+	<div id="left">
+		<div id="dsbt_left_top">
+
+			<div data-role="header">
+				<h1>Lọc</h1>
+			</div><!-- /header -->
+		
+			<div class="ui-grid-a">	
+				<div class="ui-block-a" style="width:30%; padding-top:10px; padding-left:5px">
+					<label for="dsbt_op_1">
+						Loại:
+					</label>
+				</div>
+				<div class="ui-block-b" style="width:68%">
+					<select data-native-menu="false" id="dsbt_op_1" name="">
+						<option value="option1">
+							Chọn mã thiết bị
+						</option>
+					</select>	
+				</div>
+			</div>				
+			<div class="ui-grid-a">	
+				<div class="ui-block-a" style="width:30%; padding-top:10px; padding-left:5px">				
+					<label for="dsbt_op_2">
+						Vị trí:
+					</label>
+				</div>
+				<div class="ui-block-b" style="width:68%">
+					<select data-native-menu="false" id="dsbt_op_2" name="">
+						<option value="option1">
+							Chọn vị trí
+						</option>
+					</select>
+				</div>
+			</div>
+				
+		</div><!-- /page -->
+		<div id="dsbt_left_bottom">
+			<div id="left_head">
+				<div data-role="header">
+					<h1>Danh Sách Thiết Bị</h1>
+				</div><!-- /header -->		
+					 <div class="ui-grid-a">	
+						 <div class="ui-block-a" style="width:40%">
+							<select data-native-menu="false" id="dsbt_op_3" name="">
+								<option value="ten">Tên</option>
+								<option value="masotb">Mã Số</option>
+							</select>					
+						</div>
+						<div class="ui-block-b" style="width:58%">
+							<input name="" id="dsbt_se_1" placeholder="" value="" type="search">
+						</div>
+					</div>
+			</div>
+			<ul id="dstb_list_1" data-role="listview" data-divider-theme="b" data-inset="true" style="overflow:auto">
+            	
+        	</ul>		
+		</div>
+	</div>
+	<div id="right">
+		<div id="dsbt_list_tp">				
+			<div id="right_head">
+				<div data-role="header">
+					<h1>Thành Phần Thiết Bị</h1>
+				</div><!-- /header -->		
+					 <div class="ui-grid-a">	
+						 <div class="ui-block-a" style="width:40%">
+							<select data-native-menu="false" id="dsbt_op_4" name="">
+								<option value="ten">Tên</option>
+								<option value="matp">Mã Số</option>
+							</select>					
+						</div>
+						<div class="ui-block-b" style="width:58%">
+							<input name="" id="dsbt_se_2" placeholder="" value="" type="search">
+						</div>
+					</div>
+			</div>	
+			<ul id="dstb_list_2" data-role="listview" data-divider-theme="b" data-inset="true" style="overflow:auto">
+			</ul>		
+		</div>
+		<div id="dsbt_info">
+			<div id="right_top">
+				<div data-role="header">
+					<h1>Thông Tin Chi Tiết</h1>
+				</div><!-- /header -->		
+				<p align="center">
+					<img src="img/no-img.gif" width="100" height="100" style="cursor:pointer" 
+										onclick="$('#dsbt_change_img').click()"/>
+				</p>
+				<input type="file" id="dsbt_change_img" />
+				<p>Mã số: <span id="show_maso"></span></p>
+				<p>Tên: <span id="show_ten"></span></p>			
+				<p>Vị trí: <span id="show_vitri"></span></p>
+				<div class="ui-grid-a" style="width:70%">	
+					<div class="ui-block-a" style="width:45%; padding-top:10px; padding-left:5px">				
+						<label for="dsbt_op_5">
+							Trạng thái hoạt động:
+						</label>
+					</div>
+					<div class="ui-block-b" style="width:55%">
+						<select data-native-menu="false" id="dsbt_op_5" name="">
+							<option value="binhthuong">
+								Bình thường
+							</option>
+							<option value="ngunghoatdong">
+								Ngừng hoạt động
+							</option>
+						</select>
+					</div>
+				</div>
+				<p>Thao tác bảo trì: </p>
+				<p>Lần bảo trì trước: </p>
+				<div style="margin-left:20px;">
+					<p>Thời gian: <span id="show_time"></span></p> 
+					<p>Người thực hiện: <span id="show_nguoibt"></span></p> 
+					<p>Thao tác: 	<span id="show_loaibt"></span></p>			
+				</div>
+				<p>Ghi chú</p>
+				<textarea class="describe" name="MoTa"></textarea>		
+			</div>
+			<div id="dsbt_right_action" style="height:60px;">
+				<div style="width:30%; float:left;"><input type="button" value="Hoàn thành" /></div>
+				<div style="width:30%; float:right;"><input type="button" value="In phiếu bảo trì" /></div>
+			</div>
+		</div>
+	</div>
+  </div>  
+</body>
+</html>

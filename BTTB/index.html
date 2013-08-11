@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+<title>Dang Nhap</title>
+<link rel="stylesheet" href="jquery.mobile-1.3.2.css" type="text/css" />
+<script type="text/javascript" src="js/cordova-2.9.0.js"></script>
+<script type="text/javascript" src="js/md5.js"></script>
+<script type="text/javascript" src="js/jquery-1.10.1.js"></script>
+<script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+<script type="text/javascript">	
+	var link_server = "http://localhost/projbaotri/";
+	$(function(){
+		var x = $(window).width(); 
+		var y = $(window).height(); 
+		$("#lg_container").css("width",x); 
+		$("#lg_container").css("height",y);
+		$(document).on('click','#exit_btn',function(){
+			navigator.app.exitApp();
+		});
+		$(document).on('click','#login_btn',function(){			
+			$('#loading_login').show();
+			var username = $('#username').val();
+			var password = hex_md5($('#password').val());
+			var dataString = "username="+username+"&password="+password;
+			var link = link_server+"check_login.php";
+			$.ajax({
+				type: "POST",
+				url: link,
+				data: dataString,
+				success: function(data) {
+					data = JSON.parse(data);
+					if (data['result'] == 0){
+						navigator.notification.alert(
+								'Sai tài khoản hoặc mật khẩu!',  
+								null,         
+								'Thông báo',            
+								'Xác nhận'                 
+						);
+						$('#loading_login').hide();
+						$('#login_btn').show();
+					} else {
+						$('#username').val('');
+						$('#password').val('');
+						localStorage.setItem('username',username);
+						localStorage.setItem('password',password);
+						localStorage.setItem('quyenhan',data['quyenhan']);
+						localStorage.setItem('link_server',link_server);
+						
+						$.mobile.changePage('menu.html', 'pop');
+						$('#loading_login').hide();
+						$('#login_btn').show();
+					}
+				},
+				error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Error: " + xhr.status + "\n" +
+                               "Message: " + xhr.statusText + "\n" +
+                               "Response: " + xhr.responseText + "\n" + thrownError);
+					$('#loading_login').hide();
+					$('#login_btn').show();
+				} 
+			});
+		});
+	});
+	function initialize() {
+			document.addEventListener("backbutton", function(){return false;}, false);
+			$.mobile.allowCrossDomainPages = true;
+			$.support.cors = true;
+			$.mobile.phonegapNavigationEnabled = true;		
+	}
+	function onload(){
+		console.log("Now loading...");
+		$(document).on("pageinit",initialize());
+	}
+</script>
+</head>
+<body id="login" onload="onload();">
+<div id="lg_container">
+	<img src="img/exit-icon.gif" class="logout" width="40" height="40" id="exit_btn"/>
+	<div id="lg_left">
+		<img src="img/graphic_build_bot.png" />
+	</div>
+	<div id="lg_mid" align="center">
+		<p>Gioi thieu phan mem</p>
+		<img src="img/uit-logo.png" height="80"/>
+	</div>
+	<div id="lg_right" align="center">
+		<fieldset>
+        <legend>Đăng Nhập</legend>		
+        	<input type="text" placeholder="Tên đăng nhập" id="username"/>
+			<br/><br/>
+			<input type="password" placeholder="Mật khẩu" id="password"/>
+			<br/><br/>				
+			<a data-role="button" id="login_btn" data-ajax="false" >Đăng Nhập</a>              	
+    	</fieldset>
+	</div>
+</div>
+</body>
+</html>
